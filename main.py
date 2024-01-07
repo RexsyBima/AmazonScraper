@@ -3,7 +3,8 @@
 # 1. dapetin data HTML nya dulu, pakai PLAYWRIGHT
 # 2. scraping dngn beautifulsoup4
 # 3. export/simpan data ke xlsx, kemungkinan pakai Panda
-
+# 4. Ke database
+# TO FIX captcha???
 from app.PlayWright import PlayWright
 from app.Soup import Soup
 from app.Models import Item
