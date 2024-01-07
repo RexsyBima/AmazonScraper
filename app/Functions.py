@@ -13,8 +13,6 @@ def run(url, playwright: Playwright):
     # other actions...
     time.sleep(25)
     html = page.inner_html("body")
-    with open("output.html", "w", encoding="utf-8") as file:
-        file.writelines(html)
     browser.close()
     return html
 

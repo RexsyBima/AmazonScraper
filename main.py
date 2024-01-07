@@ -11,7 +11,7 @@ from app.Models import Item
 from app.Functions import create_item
 
 
-if __name__ == "__main__":
+def main():
     url = "https://www.amazon.com/HP-Flagship-i5-1155G7-Bluetooth-Accessories/dp/B0CPF2T2FD?pf_rd_r=BA29D1VNXE2765GP16CE&pf_rd_t=Events&pf_rd_i=deals&pf_rd_p=4ec8afa9-2097-4b21-a8c6-defe88813034&pf_rd_s=slot-14&ref=dlx_deals_gd_dcl_tlt_0_5bbcf5a6_dt_sl14_34&th=1"
     PW = PlayWright(url)
 
@@ -22,7 +22,8 @@ if __name__ == "__main__":
     item = Item()
     created_item = create_item(item, soup, url)
 
-    print(item)
+    print(created_item)
+
 
 # PR improve looping, pngn ngescrape bbrp url sekaligus
 # categori
