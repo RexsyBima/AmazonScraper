@@ -17,9 +17,7 @@ class Soup(BeautifulSoup):
         # self.discount = self.find(
         #    "span", class_="reinventPriceSavingsPercentageMargin"
         # ).get_text()
-        self.price = (
-            self.find("span", class_="a-price-whole").get_text().replace(".", " ")
-        )
+        self.price = self.find("span", class_="a-price-whole").get_text().replace(".", " ") if self.find("span", class_="a-price-whole") is not None else "Unavailable/Out Of Stock"
         self.decimal_price = self.find("span", class_="a-price-fraction").get_text()
         self.shipping = self.find("span", class_="a-color-secondary").get_text()
         self.category_price = self.findAll("span", class_="twisterSwatchPrice")
@@ -40,7 +38,7 @@ class Soup(BeautifulSoup):
         for i in self.features:
             features.append(i.get_text())
         self.features = features
-        self.seller = self.find("a", id="sellerProfileTriggerId").get_text()
+        self.seller = self.find("a", id="sellerProfileTriggerId").get_text() if self.find("a", id="sellerProfileTriggerId") is not None else None 
         self.brand = self.find("a", id="bylineInfo").get_text()
         self.details = self.find("div", id="poExpander")
         self.details_product = self.details.find_all("tr", class_="a-spacing-small")
@@ -52,3 +50,23 @@ class Soup(BeautifulSoup):
         self.img_url = self.find("div", id="main-image-container").find(
             "img", class_="a-dynamic-image"
         )["src"]
+
+    @property
+    def captcha(self):
+        captcha = (
+            self.find("div", class_="a-section")
+            .find("div", class_="a-box")
+            .find("div", class_="a-box")
+            .find("img")["src"]
+        )
+        return captcha
+
+    @property
+    def catalogue_urls(self, output: list = []):
+        urls = self.find("ul", class_="ProductGrid__grid__f5oba").find_all(
+            "li", class_="ProductGridItem__itemOuter__KUtvv"
+        )
+        for i in urls:
+            url = f"https://amazon.com{i.a["href"]}"
+            output.append(url)
+        return output
