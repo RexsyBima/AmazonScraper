@@ -16,3 +16,13 @@ class Item(BaseModel):
     brand: str | None = None
     details: dict | None = None
     img_url: str | None = None
+
+
+class Subcategory(BaseModel):
+    href: str | None = None
+    name: str | None = None
+
+
+class Category(BaseModel):
+    category: str | None = None
+    subcategory: Subcategory | None = Subcategory()

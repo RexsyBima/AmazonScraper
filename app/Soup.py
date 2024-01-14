@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
-
+import json
+from app.Models import Category
 
 class Soup(BeautifulSoup):
     def __init__(self, html):
@@ -70,3 +71,30 @@ class Soup(BeautifulSoup):
             url = f"https://amazon.com{i.a["href"]}"
             output.append(url)
         return output
+
+    @property
+    def get_categories(self, output : list = []):# -> list:
+        categories = self.find("ul", class_ ="Navigation__navList__HrEra").find_all("li", class_="Navigation__hasChildren__jSUsH")
+        item = {"category" : None}
+        for i in categories:
+            ITEM = Category()
+            output_category = []
+            category = i.find("span", class_="Navigation__linkText__LoQD4").get_text()
+            subcats = i.find_all("li", class_="Navigation__navItem__bakjf")
+            item["category"] = category
+            ITEM.category = category 
+            print(f"category is {category}")
+            for cat in subcats[2:]:
+                href = f"https://www.amazon.com/{cat.find("a")["href"]}"
+                cat_name = cat.find("span").get_text()
+                #print(cat_name)
+                ITEM.subcategory.href = href
+                ITEM.subcategory.name = cat_name #.append({"subname" : cat_name, "href" : href})
+                output_category.append({"subname" : cat_name, "href" : href})
+            output.append(ITEM)
+            print(ITEM.category) #TO BE FIXED DISISI SAYA
+            item["subcategory"] = output_category
+        return output
+                
+            
+            

@@ -5,12 +5,15 @@ from app.Soup import Soup
 from amazoncaptcha import AmazonCaptcha
 import pandas as pd
 
+type_data = ["image", "font"]  # stylesheet"
+
 
 def run(url, playwright: Playwright):
     chromium = playwright.chromium  # or "firefox" or "webkit".
     browser = chromium.launch(headless=False)
     page = browser.new_context(record_har_mode="minimal")
     page = page.new_page()
+    # page.route("**/*", block_aggressively)
     page.goto(url)
     html = page.inner_html("body")
     soup = Soup(html)
@@ -22,10 +25,18 @@ def run(url, playwright: Playwright):
         page.get_by_placeholder("Type characters").fill(solution)
         page.get_by_text("Continue shopping").click()
         print(solution)
-        time.sleep(2)
-    time.sleep(1)
+        time.sleep(5)
+    time.sleep(5)
+    # page.get_by_text("MORE", exact=True).click()
     html = page.inner_html("body")
     return html, browser, page
+
+
+def block_aggressively(route):
+    if route.request.resource_type in type_data:
+        route.abort()
+    else:
+        route.continue_()
 
 
 # Captcha solver
