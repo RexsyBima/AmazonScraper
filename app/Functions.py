@@ -9,6 +9,10 @@ type_data = ["image", "font"]  # stylesheet"
 
 
 def run(url, playwright: Playwright):
+    """
+    to running playwright chromium browser, has built in captcha fix/solution
+    """
+
     chromium = playwright.chromium  # or "firefox" or "webkit".
     browser = chromium.launch(headless=False)
     page = browser.new_context(record_har_mode="minimal")
@@ -53,6 +57,14 @@ def block_aggressively(route):
 
 
 def create_item(item: Item, soup: Soup, url):
+    """
+    create the pydantic basemodel of Item
+
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+
     item.url = url
     item.title = soup.title
     item.price = soup.price
@@ -69,6 +81,15 @@ def create_item(item: Item, soup: Soup, url):
     return item
 
 
-def save_to_xlsx(pd: pd = pd, outputs: list = []):
+def save_to_xlsx(pd: pd = pd, outputs: list = [], filename: str = "output"):
+    """
+
+    save the output of list of dictionary, into a proper output.xlsx file
+
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+
     df = pd.DataFrame(outputs)
-    df.to_excel("output.xlsx")
+    df.to_excel(f"{filename}.xlsx")

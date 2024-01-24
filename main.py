@@ -7,7 +7,7 @@
 # TO FIX captcha???
 from app.PlayWright import PlayWright
 from app.Soup import Soup
-from app.Models import Item
+from app.Models import Item, Subcategory, Category
 from app.Functions import create_item, save_to_xlsx
 
 
@@ -22,7 +22,9 @@ def main():
     # product_urls = soup.catalogue_urls
     output = soup.get_categories
     # TO ADDRESS error print soup.get_categories
-    print(output)
+    for i in output:
+        i: Category = i
+        print(i.subcategory.href)
     exit()
     item_output = []
     for url in product_urls[0:2]:

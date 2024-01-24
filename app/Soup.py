@@ -3,6 +3,14 @@ import json
 from app.Models import Category
 
 class Soup(BeautifulSoup):
+    """
+    class Soup, inherits from BeautifulSoup. contains parsing mechanisms
+    
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    
     def __init__(self, html):
         super().__init__(html, "html.parser")
 
@@ -13,6 +21,10 @@ class Soup(BeautifulSoup):
         features: list = [],
         details: dict = {},
     ):
+        """
+        to parse per item, pretty self explanatory        
+        
+        """
         self.title = self.find("span", id="productTitle").get_text()
         # self.initial_price = self.find("span", class_="a-text-price").span.get_text()
         # self.discount = self.find(
@@ -54,6 +66,9 @@ class Soup(BeautifulSoup):
 
     @property
     def captcha(self):
+        """
+        to get the value of the captha
+        """
         captcha = (
             self.find("div", class_="a-section")
             .find("div", class_="a-box")
@@ -64,6 +79,16 @@ class Soup(BeautifulSoup):
 
     @property
     def catalogue_urls(self, output: list = []):
+        """
+        
+        to get urls catalogue product catalog ex = laptop, computer
+        aka main category
+        
+        Keyword arguments:
+        argument -- description
+        Return: return_description
+        """
+        
         urls = self.find("ul", class_="ProductGrid__grid__f5oba").find_all(
             "li", class_="ProductGridItem__itemOuter__KUtvv"
         )
@@ -74,6 +99,9 @@ class Soup(BeautifulSoup):
 
     @property
     def get_categories(self, output : list = []):# -> list:
+        """Lost track, to fix = get all subcats at once (so far only last one of subcategory(ies))
+        ex = Categories -> Monitor ->Only scrape 'Learn From Home
+        """
         categories = self.find("ul", class_ ="Navigation__navList__HrEra").find_all("li", class_="Navigation__hasChildren__jSUsH")
         item = {"category" : None}
         for i in categories:
@@ -83,18 +111,31 @@ class Soup(BeautifulSoup):
             subcats = i.find_all("li", class_="Navigation__navItem__bakjf")
             item["category"] = category
             ITEM.category = category 
-            print(f"category is {category}")
+            #print(f"category is {category}")
             for cat in subcats[2:]:
-                href = f"https://www.amazon.com/{cat.find("a")["href"]}"
+                href = f"https://www.amazon.com{cat.find("a")["href"]}"
                 cat_name = cat.find("span").get_text()
                 #print(cat_name)
                 ITEM.subcategory.href = href
                 ITEM.subcategory.name = cat_name #.append({"subname" : cat_name, "href" : href})
                 output_category.append({"subname" : cat_name, "href" : href})
             output.append(ITEM)
-            print(ITEM.category) #TO BE FIXED DISISI SAYA
+            #print(ITEM.category) #TO BE FIXED DISISI SAYA
             item["subcategory"] = output_category
         return output
-                
-            
-            
+    
+    @property
+    def get_urls_from_subcategories(self):
+        """
+        get item products after accessing subcategories
+        Keyword arguments:
+        argument -- description
+        Return: return_description
+        """   
+        output = []
+        products_urls = self.find("div", id="ProductGrid-Evg8im6rwo").find_all("li", class_="ProductGridItem__itemOuter__KUtvv")
+        for url in products_urls:
+            url : BeautifulSoup = url
+            href = f"https://www.amazon.com{url.find("a")["href"]}"
+            output.append(href)
+        return output
