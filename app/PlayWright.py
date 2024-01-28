@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-from app.Functions import run
+from app.Functions import run, run_scroll
 
 
 class PlayWright:
@@ -23,6 +23,13 @@ class PlayWright:
 
         with sync_playwright() as playwright:
             self.html, self.browser, self.page = run(url=url, playwright=playwright)
+        return self.html
+
+    def get_product_urls(self, url):
+        with sync_playwright() as playwright:
+            self.html, self.browser, self.page = run_scroll(
+                url=url, playwright=playwright
+            )
         return self.html
 
     def save_html(self):

@@ -1,4 +1,5 @@
 import time
+from bs4 import BeautifulSoup
 from playwright.sync_api import Playwright
 from app.Models import Item
 from app.Soup import Soup
@@ -17,22 +18,58 @@ def run(url, playwright: Playwright):
     browser = chromium.launch(headless=False)
     page = browser.new_context(record_har_mode="minimal")
     page = page.new_page()
-    # page.route("**/*", block_aggressively)
+    page.route("**/*", block_aggressively)
     page.goto(url)
     html = page.inner_html("body")
     soup = Soup(html)
     captcha_url = soup.captcha
-    print(captcha_url)
+    # print(captcha_url)
     if captcha_url is not None:  # SOLVING CAPTCHA
         amazon = AmazonCaptcha.fromlink(captcha_url)
         solution = amazon.solve()
         page.get_by_placeholder("Type characters").fill(solution)
         page.get_by_text("Continue shopping").click()
-        print(solution)
+        # print(solution)
         time.sleep(5)
     time.sleep(5)
     # page.get_by_text("MORE", exact=True).click()
     html = page.inner_html("body")
+    browser.close()
+    return html, browser, page
+
+
+def run_scroll(url, playwright: Playwright):
+    """
+    to running playwright chromium browser, has built in captcha fix/solution
+    """
+
+    chromium = playwright.chromium  # or "firefox" or "webkit".
+    browser = chromium.launch(headless=False)
+    page = browser.new_context(record_har_mode="minimal")
+    page = page.new_page()
+    page.route("**/*", block_aggressively)
+    page.goto(url)
+    x = 0
+    before_html = page.inner_html("body")
+    while True:
+        time.sleep(3)
+        # page.mouse.wheel(delta_y=1200, delta_x=0)
+        page.keyboard.press("End")
+        page.keyboard.press("Home")
+        page.keyboard.press("End")
+        page.keyboard.press("Home")
+
+        x += 10
+        if x >= 10:
+            time.sleep(5)
+        after_html = page.inner_html("body")
+        if before_html == after_html:
+            break
+        else:
+            before_html = after_html
+
+    html = page.inner_html("body")
+    browser.close()
     return html, browser, page
 
 
@@ -93,3 +130,9 @@ def save_to_xlsx(pd: pd = pd, outputs: list = [], filename: str = "output"):
 
     df = pd.DataFrame(outputs)
     df.to_excel(f"{filename}.xlsx")
+
+
+def duplicates(input):
+    from app.Utils import remove_duplicates
+
+    return remove_duplicates(input)

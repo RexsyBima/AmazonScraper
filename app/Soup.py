@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import json
 from app.Models import Category
 
+
 class Soup(BeautifulSoup):
     """
     class Soup, inherits from BeautifulSoup. contains parsing mechanisms
@@ -139,3 +140,16 @@ class Soup(BeautifulSoup):
             href = f"https://www.amazon.com{url.find("a")["href"]}"
             output.append(href)
         return output
+
+    @property
+    def get_keywords(self):
+        categories = self.find("div", id="Header-2g25ca8k58").find("ul", class_ ="Navigation__navList__HrEra").find_all("li", class_="Navigation__navItem__bakjf")
+        output = [i.span.get_text() for i in categories]
+        from app.Functions import duplicates
+        return duplicates(output)                
+        
+
+    @property
+    def get_product_urls(self):
+        urls = self.find("div", id="ProductGrid-Search").find_all("li", class_="ProductGridItem__itemOuter__KUtvv")
+        return [f"https://amazon.com/{url.find("a")["href"]}" for url in urls]
