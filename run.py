@@ -11,13 +11,25 @@ from app.Models import Item, Subcategory, Category
 from app.Functions import create_item, save_to_xlsx
 
 
-def main():
-    url = "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/"  # "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/search?terms=Computer"  # url = "https://www.amazon.com/HP-Flagship-i5-1155G7-Bluetooth-Accessories/dp/B0CPF2T2FD?pf_rd_r=BA29D1VNXE2765GP16CE&pf_rd_t=Events&pf_rd_i=deals&pf_rd_p=4ec8afa9-2097-4b21-a8c6-defe88813034&pf_rd_s=slot-14&ref=dlx_deals_gd_dcl_tlt_0_5bbcf5a6_dt_sl14_34&th=1"
-    PW = PlayWright()
-
+def parsing_keywords():
     html = PW.goto(url)
-    PW.save_html()
     soup = Soup(html)
+    keywords = soup.get_keywords
+    return keywords
+
+
+def parsing_url_products_per_keyword(keywords: list):
+    output = []
+    for keyword in keywords[0:2]:
+        html = PW.get_product_urls(f"{url}search?terms={keyword}")
+        soup = Soup(html)
+        urls = soup.get_product_urls
+        print(urls)
+        output.extend(urls)
+    return output
+    # https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/search?terms=Computer
+
+    """
     # soup.parsing()
     # product_urls = soup.catalogue_urls
     output = soup.get_categories
@@ -40,35 +52,18 @@ def main():
     item_output = [item.dict() for item in item_output]
     save_to_xlsx(outputs=item_output)
     PW.close()  # close browser?
+    """
 
 
-def main2():
-    url = "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/"  # "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/search?terms=Computer"  # url = "https://www.amazon.com/HP-Flagship-i5-1155G7-Bluetooth-Accessories/dp/B0CPF2T2FD?pf_rd_r=BA29D1VNXE2765GP16CE&pf_rd_t=Events&pf_rd_i=deals&pf_rd_p=4ec8afa9-2097-4b21-a8c6-defe88813034&pf_rd_s=slot-14&ref=dlx_deals_gd_dcl_tlt_0_5bbcf5a6_dt_sl14_34&th=1"
-    PW = PlayWright()
-
-    html = PW.goto(url)
-    PW.save_html()
-    soup = Soup(html)
-    # soup.parsing()
-    # product_urls = soup.catalogue_urls
-    output = soup.get_categories
-    # TO ADDRESS error print soup.get_categories
-    # for i in output:
-    #    i: Category = i
-    #    print(i.subcategory.href)
-    urls = [i.subcategory.href for i in output if i is not None]
-    return urls
-
-
-def main3(urls):
-    PW = PlayWright()
+def parsing_product(urls: list):
     output = []
-    for url in urls:
+    for url in urls[0:2]:
         html = PW.goto(url)
-        PW.save_html()
         soup = Soup(html)
-        url_products = soup.get_urls_from_subcategories
-        output.extend(url_products)
+        soup.parsing()
+        item = Item()
+        item = create_item(item, soup, url)
+        output.append(item)
     return output
 
 
@@ -90,6 +85,11 @@ def main3(urls):
 
 
 if __name__ == "__main__":
-    urls = main2()
-    output = main3(urls)
-    print(output)
+    url = "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/"  # "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/search?terms=Computer"  # url = "https://www.amazon.com/HP-Flagship-i5-1155G7-Bluetooth-Accessories/dp/B0CPF2T2FD?pf_rd_r=BA29D1VNXE2765GP16CE&pf_rd_t=Events&pf_rd_i=deals&pf_rd_p=4ec8afa9-2097-4b21-a8c6-defe88813034&pf_rd_s=slot-14&ref=dlx_deals_gd_dcl_tlt_0_5bbcf5a6_dt_sl14_34&th=1"
+    PW = PlayWright()
+    keywords = parsing_keywords()
+    urls = parsing_url_products_per_keyword(keywords)
+    final_output = parsing_product(urls)
+    print(final_output)
+    final_output = [i.dict() for i in final_output]
+    save_to_xlsx(outputs=final_output)

@@ -17,7 +17,7 @@ def run(url, playwright: Playwright):
     browser = chromium.launch(headless=False)
     page = browser.new_context(record_har_mode="minimal")
     page = page.new_page()
-    # page.route("**/*", block_aggressively)
+    page.route("**/*", block_aggressively)
     page.goto(url)
     html = page.inner_html("body")
     soup = Soup(html)
@@ -33,6 +33,37 @@ def run(url, playwright: Playwright):
     time.sleep(5)
     # page.get_by_text("MORE", exact=True).click()
     html = page.inner_html("body")
+    browser.close()
+    return html, browser, page
+
+
+def run_scroll(url, playwright: Playwright):
+    """
+    to running playwright chromium browser, has built in captcha fix/solution
+    """
+
+    chromium = playwright.chromium  # or "firefox" or "webkit".
+    browser = chromium.launch(headless=False)
+    page = browser.new_context(record_har_mode="minimal")
+    page = page.new_page()
+    page.route("**/*", block_aggressively)
+    page.goto(url)
+    before_html = page.inner_html("body")
+    # page.get_by_text("Show more").click()
+    while True:
+        # page.mouse.wheel(delta_x=0.0, delta_y=1080.0)
+        after_html = page.inner_html("body")
+        if before_html == after_html:
+            break
+        else:
+            before_html = after_html
+        # page.get_by_text("Show more").click()
+        page.keyboard.press("End")
+        time.sleep(1)
+        page.keyboard.press("Home")
+    # page.get_by_text("MORE", exact=True).click()
+    html = page.inner_html("body")
+    browser.close()
     return html, browser, page
 
 

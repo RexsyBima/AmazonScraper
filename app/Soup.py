@@ -31,7 +31,7 @@ class Soup(BeautifulSoup):
         #    "span", class_="reinventPriceSavingsPercentageMargin"
         # ).get_text()
         self.price = self.find("span", class_="a-price-whole").get_text().replace(".", " ") if self.find("span", class_="a-price-whole") is not None else "Unavailable/Out Of Stock"
-        self.decimal_price = self.find("span", class_="a-price-fraction").get_text()
+        self.decimal_price = self.find("span", class_="a-price-fraction").get_text() if self.find("span", class_="a-price-fraction") is not None else "Unavailable/Out of Stock"
         self.shipping = self.find("span", class_="a-color-secondary").get_text()
         self.category_price = self.findAll("span", class_="twisterSwatchPrice")
         self.category = self.findAll("span", class_="swatch-title-text-display")
@@ -139,3 +139,14 @@ class Soup(BeautifulSoup):
             href = f"https://www.amazon.com{url.find("a")["href"]}"
             output.append(href)
         return output
+
+    @property
+    def get_keywords(self):
+        categories = self.find("ul", class_="Navigation__navList__HrEra").find_all("li",class_="Navigation__navItem__bakjf") #to fix categories all in one
+        output = [i.get_text() for i in categories]
+        return output
+
+    @property
+    def get_product_urls(self):
+        urls = self.find("div", id="ProductGrid-Search").find_all("li", class_= "ProductGridItem__itemOuter__KUtvv")
+        return [f"https://www.amazon.com{url.find("a")['href']}" for url in urls]
