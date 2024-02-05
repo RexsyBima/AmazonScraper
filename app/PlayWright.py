@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-from app.Functions import run, run_scroll
+from app.Functions import run, run_scroll, block_aggressively
 
 
 class PlayWright:
@@ -22,7 +22,12 @@ class PlayWright:
         """
 
         with sync_playwright() as playwright:
-            self.html, self.browser, self.page = run(url=url, playwright=playwright)
+            chromium = playwright.chromium  # or "firefox" or "webkit".
+            browser = chromium.launch(headless=True, args=["--no-sandbox"])
+            page = browser.new_context(record_har_mode="minimal")
+            page = page.new_page()
+            page.route("**/*", block_aggressively)
+            self.html, self.browser, self.page = run(url, browser, page)
         return self.html
 
     def get_product_urls(self, url):

@@ -12,8 +12,9 @@ class Item(BaseModel):
 
     url: str | None = None
     title: str | None = None
-    price: int | None = None
-    decimal_price: int | None = None
+    # price: int | None = None
+    # decimal_price: int | None = None
+    final_price: float | None = None
     shipping: int | None = None
     category_price: list | None = None
     category: list | None = None

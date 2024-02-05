@@ -25,13 +25,14 @@ class Soup(BeautifulSoup):
         to parse per item, pretty self explanatory        
         
         """
-        self.title = self.find("span", id="productTitle").get_text()
+        self.title = self.find("span", id="productTitle").get_text() if self.find("span", id="productTitle") is not None else None
         # self.initial_price = self.find("span", class_="a-text-price").span.get_text()
         # self.discount = self.find(
         #    "span", class_="reinventPriceSavingsPercentageMargin"
-        # ).get_text()
-        self.price = self.find("span", class_="a-price-whole").get_text().replace(".", " ") if self.find("span", class_="a-price-whole") is not None else "Unavailable/Out Of Stock"
-        self.decimal_price = self.find("span", class_="a-price-fraction").get_text() if self.find("span", class_="a-price-fraction") is not None else "Unavailable/Out of Stock"
+        # ).get_text() 
+        self.price = self.find("span", class_="a-price-whole").get_text().replace(".", " ").replace(",", "") if self.find("span", class_="a-price-whole") is not None else "0"
+        self.decimal_price = self.find("span", class_="a-price-fraction").get_text() if self.find("span", class_="a-price-fraction") is not None else "0"
+        self.final_price = f"{self.price.replace(" ", "")}.{self.decimal_price.replace(" ", "")}" #12.6, 134.89
         self.shipping = self.find("span", class_="a-color-secondary").get_text()
         self.category_price = self.findAll("span", class_="twisterSwatchPrice")
         self.category = self.findAll("span", class_="swatch-title-text-display")
@@ -42,23 +43,25 @@ class Soup(BeautifulSoup):
         )
         for i in self.category_price:
             category_price.append(i.get_text())
-        self.total_rating = self.find("span", id="acrCustomerReviewText").get_text()
-        self.rating = self.find("span", id="acrPopover").a.span.get_text()
-        self.features = self.find("div", id="feature-bullets").find_all(
+        self.total_rating = int(self.find("span", id="acrCustomerReviewText").get_text().replace("ratings", "").replace("rating", "").replace(",", "")) if self.find("span", id="acrCustomerReviewText") is not None else 0
+        self.rating = self.find("span", id="acrPopover").a.span.get_text() if self.find("span", id="acrPopover") is not None else 0 
+        self.features : list = self.find("div", id="feature-bullets").find_all(
             "li", class_="a-spacing-mini"
-        )
+        ) if self.find("div", id="feature-bullets") is not None else []
 
-        for i in self.features:
-            features.append(i.get_text())
+        if len(self.features) > 0:
+            for i in self.features:
+                features.append(i.get_text())
         self.features = features
         self.seller = self.find("a", id="sellerProfileTriggerId").get_text() if self.find("a", id="sellerProfileTriggerId") is not None else None 
-        self.brand = self.find("a", id="bylineInfo").get_text()
+        self.brand = self.find("a", id="bylineInfo").get_text().replace("Visit the ", "")
         self.details = self.find("div", id="poExpander")
-        self.details_product = self.details.find_all("tr", class_="a-spacing-small")
-        for i in self.details_product:
-            details[i.find("td", class_="a-span3").get_text()] = i.find(
-                "td", class_="a-span9"
-            ).get_text()
+        self.details_product = self.details.find_all("tr", class_="a-spacing-small") if self.details is not None else None
+        if self.details_product is not None:
+            for i in self.details_product:
+                details[i.find("td", class_="a-span3").get_text()] = i.find(
+                    "td", class_="a-span9"
+                ).get_text()
         self.details = details
         self.img_url = self.find("div", id="main-image-container").find(
             "img", class_="a-dynamic-image"
@@ -69,14 +72,16 @@ class Soup(BeautifulSoup):
         """
         to get the value of the captha
         """
-        captcha = (
-            self.find("div", class_="a-section")
-            .find("div", class_="a-box")
-            .find("div", class_="a-box")
-            .find("img")["src"]
-        )
-        return captcha
-
+        try:
+            captcha = self.find("div", class_="a-section").find("div", class_="a-box").find("div", class_="a-box").find("img")["src"] if self.find("div", class_="a-section") is not None else None
+        except TypeError:
+            return None
+        if captcha is not None:
+            return captcha
+        else:
+            return None
+        
+        
     @property
     def catalogue_urls(self, output: list = []):
         """
