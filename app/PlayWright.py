@@ -23,7 +23,7 @@ class PlayWright:
 
         with sync_playwright() as playwright:
             chromium = playwright.chromium  # or "firefox" or "webkit".
-            browser = chromium.launch(headless=True, args=["--no-sandbox"])
+            browser = chromium.launch(headless=False, args=["--no-sandbox"])
             page = browser.new_context(record_har_mode="minimal")
             page = page.new_page()
             page.route("**/*", block_aggressively)

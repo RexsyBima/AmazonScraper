@@ -5,7 +5,7 @@
 # 3. export/simpan data ke xlsx, kemungkinan pakai Panda
 # 4. Ke database
 # TO FIX captcha???
-from multiprocessing import process
+import time
 from app.PlayWright import PlayWright
 from app.Soup import Soup
 from app.Models import Item, Subcategory, Category
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     # keywords = parsing_keywords()
     # urls = parsing_url_products_per_keyword(keywords)
     # data = {"urls": urls}
-    # with open("urls.json", "w") as file:x
+    # with open("urls.json", "w") as file:
     #    json.dump(data, file)
     with open("urls.json", "r") as file:
         urls: list = json.load(file)["urls"]

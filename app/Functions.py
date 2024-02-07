@@ -61,7 +61,7 @@ def run_scroll(url, playwright: Playwright):
     browser = chromium.launch(headless=False, args=["--no-sandbox"])
     page = browser.new_context(record_har_mode="minimal")
     page = page.new_page()
-    page.route("**/*", block_aggressively)
+    page.route("**/*", block_aggressively)  #
     page.goto(url)
     before_html = page.inner_html("body")
     # page.get_by_text("Show more").click()
