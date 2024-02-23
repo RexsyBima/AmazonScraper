@@ -11,11 +11,12 @@ from app.Soup import Soup
 from app.Models import Item, Subcategory, Category
 from app.Functions import (
     create_item,
+    process_remaining_urls,
     save_to_xlsx,
     insert_into_db,
     remove_duplicates,
     kill_process_by_name,
-    process_remaining_list,
+    process_remaining_urls,
 )
 from cs50 import SQL
 import json
@@ -108,14 +109,14 @@ if __name__ == "__main__":
     db_urls = [url["url"] for url in db.execute("SELECT * FROM products")]
     url = "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/"  # "https://www.amazon.com/stores/page/5BA42671-3E42-4AEB-B9E4-272F10DD0121/search?terms=Computer"  # url = "https://www.amazon.com/HP-Flagship-i5-1155G7-Bluetooth-Accessories/dp/B0CPF2T2FD?pf_rd_r=BA29D1VNXE2765GP16CE&pf_rd_t=Events&pf_rd_i=deals&pf_rd_p=4ec8afa9-2097-4b21-a8c6-defe88813034&pf_rd_s=slot-14&ref=dlx_deals_gd_dcl_tlt_0_5bbcf5a6_dt_sl14_34&th=1"
     PW = PlayWright()
-    # keywords = parsing_keywords()
-    # urls = parsing_url_products_per_keyword(keywords)
-    # data = {"urls": urls}
-    # with open("urls.json", "w") as file:
-    #    json.dump(data, file)
+    keywords = parsing_keywords()
+    urls = parsing_url_products_per_keyword(keywords)
+    data = {"urls": urls}
+    with open("urls.json", "w") as file:
+        json.dump(data, file)
     with open("urls.json", "r") as file:
         urls: list = json.load(file)["urls"]
-    urls = process_remaining_list(db_urls, urls)
+    urls = process_remaining_urls(db_urls, urls)
     final_output: list[Item] = parsing_product(urls, db)
     print(final_output)
     final_output = [i.model_dump() for i in final_output]

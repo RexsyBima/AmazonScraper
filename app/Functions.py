@@ -152,7 +152,7 @@ def remove_duplicates(input_list):
     return unique_list
 
 
-def process_remaining_list(input_list_db: list, input_list_json: list):
+def process_remaining_urls(input_list_db: list, input_list_json: list):
     output = []
     for url in input_list_json:
         if url not in input_list_db:
